@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>单词选择器</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            padding: 15px;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            font-size: 1.5rem;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+        }
+        
+        .section-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #34495e;
+            font-size: 1.1rem;
+        }
+        
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        textarea:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        .button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+        
+        .button:hover {
+            background-color: #2980b9;
+        }
+        
+        .checkbox-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px; /* 减小间距以容纳更多内容 */
+            margin-top: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            background-color: #f8f9fa;
+            padding: 8px 10px; /* 减小内边距以节约空间 */
+            border-radius: 8px;
+            /* 关键修改：实现一行三列布局，并考虑8px的gap */
+            flex: 1 1 calc(33.333% - 6px); 
+            min-width: 150px; /* 保证在伸缩时不会过窄 */
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden; /* 防止内容溢出 */
+            white-space: nowrap; /* 防止换行 */
+        }
+        
+        .checkbox-item:hover {
+            background-color: #e9ecef;
+        }
+        
+        .checkbox-item.checked {
+            background-color: #e3f2fd;
+            border-color: #3498db;
+        }
+        
+        .checkbox-item input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .checkbox-item .checkmark {
+            width: 18px; /* 减小复选框大小 */
+            height: 18px;
+            border: 2px solid #3498db;
+            border-radius: 4px;
+            margin-right: 8px; /* 减小右边距 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .checkbox-item.checked .checkmark::after {
+            content: "✓";
+            color: #3498db;
+            font-weight: bold;
+        }
+        
+        .word-pair {
+            /* 关键修改：让单词和翻译在同一行显示 */
+            display: flex; 
+            align-items: baseline; /* 基线对齐，视觉效果更好 */
+            flex-grow: 1;
+            overflow: hidden; /* 隐藏溢出部分 */
+            text-overflow: ellipsis; /* 溢出时显示省略号 */
+        }
+        
+        .word {
+            font-weight: bold;
+            font-size: 0.95rem; /* 略微减小字体 */
+        }
+        
+        .translation {
+            color: #666;
+            font-size: 0.85rem; /* 略微减小字体 */
+            margin-left: 5px; /* 单词和翻译之间的间距 */
+            flex-shrink: 1; /* 允许翻译部分收缩 */
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .output-section {
+            margin-top: 20px;
+        }
+        
+        .hint {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        
+        @media (max-width: 600px) {
+            /* 在较小屏幕上，改为一行两列 */
+            .checkbox-item {
+                flex: 1 1 calc(50% - 4px);
+            }
+        }
+
+        @media (max-width: 420px) {
+            /* 在非常小的屏幕上，改为一行一列 */
+            .checkbox-item {
+                flex: 1 1 100%;
+            }
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .action-buttons .button {
+            flex: 1 1 calc(33.333% - 6px);
+            min-width: 0;
+        }
+        
+        .select-all {
+            background-color: #2ecc71;
+        }
+        
+        .select-all:hover {
+            background-color: #27ae60;
+        }
+        
+        .deselect-all {
+            background-color: #e74c3c;
+        }
+        
+        .deselect-all:hover {
+            background-color: #c0392b;
+        }
+        
+        .process-btn {
+            background-color: #9b59b6;
+        }
+        
+        .process-btn:hover {
+            background-color: #8e44ad;
+        }
+        
+        .button-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .button-row .button {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>单词选择器</h1>
+        
+        <div class="section">
+            <div class="section-title">输入单词和翻译（用空格或换行分隔）</div>
+            <textarea id="inputText" placeholder="例如：ankle踝 anniversary周年纪念日 annoy使恼怒"></textarea>
+            <div class="button-row">
+                <button id="processBtn" class="button process-btn">处理单词</button>
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">选择单词</div>
+            <div class="hint">点击单词选择或取消选择：</div>
+            <div id="checkboxContainer" class="checkbox-container">
+                <!-- 复选框将在这里动态生成 -->
+            </div>
+            <div class="action-buttons">
+                <button id="selectAllBtn" class="button select-all">全选</button>
+                <button id="deselectAllBtn" class="button deselect-all">全不选</button>
+                <button id="invertSelectionBtn" class="button" style="background-color: #f39c12;">反选</button>
+            </div>
+        </div>
+        
+        <div class="section output-section">
+            <div class="section-title">整合结果</div>
+            <input type="text" id="outputText" readonly placeholder="选中的单词将显示在这里">
+            <div class="hint">选中的单词已自动删除所有空格和换行</div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputText = document.getElementById('inputText');
+            const processBtn = document.getElementById('processBtn');
+            const checkboxContainer = document.getElementById('checkboxContainer');
+            const outputText = document.getElementById('outputText');
+            const selectAllBtn = document.getElementById('selectAllBtn');
+            const deselectAllBtn = document.getElementById('deselectAllBtn');
+            const invertSelectionBtn = document.getElementById('invertSelectionBtn');
+            
+            let wordPairs = [];
+            
+            processBtn.addEventListener('click', function() {
+                const text = inputText.value.trim();
+                if (!text) {
+                    alert('请输入单词和翻译');
+                    return;
+                }
+                
+                const items = splitWordsAndTranslations(text);
+                
+                checkboxContainer.innerHTML = '';
+                wordPairs = [];
+                
+                for (let i = 0; i < items.length; i += 2) {
+                    const word = items[i];
+                    const translation = items[i+1] || '';
+                    
+                    if (!word && !translation) continue;
+
+                    wordPairs.push({
+                        word: word,
+                        translation: translation,
+                        checked: true
+                    });
+                    
+                    const index = wordPairs.length - 1;
+                    const checkboxItem = document.createElement('label');
+                    checkboxItem.className = 'checkbox-item checked';
+                    checkboxItem.setAttribute('data-index', index);
+                    
+                    // 使用 title 属性在鼠标悬停时显示完整内容
+                    checkboxItem.title = `${word} ${translation}`;
+
+                    checkboxItem.innerHTML = `
+                        <span class="checkmark"></span>
+                        <div class="word-pair">
+                            <span class="word">${word}</span>
+                            <span class="translation">${translation}</span>
+                        </div>
+                    `;
+                    
+                    checkboxContainer.appendChild(checkboxItem);
+                    
+                    checkboxItem.addEventListener('click', function(e) {
+                        // 防止label的默认行为触发两次点击
+                        e.preventDefault();
+                        const clickedIndex = parseInt(this.getAttribute('data-index'));
+                        wordPairs[clickedIndex].checked = !wordPairs[clickedIndex].checked;
+                        this.classList.toggle('checked', wordPairs[clickedIndex].checked);
+                        updateOutput();
+                    });
+                }
+                
+                updateOutput();
+            });
+            
+            selectAllBtn.addEventListener('click', function() {
+                setAllCheckboxes(true);
+            });
+            
+            deselectAllBtn.addEventListener('click', function() {
+                setAllCheckboxes(false);
+            });
+            
+            invertSelectionBtn.addEventListener('click', function() {
+                wordPairs.forEach((pair, index) => {
+                    pair.checked = !pair.checked;
+                    const checkboxItem = checkboxContainer.querySelector(`[data-index="${index}"]`);
+                    if (checkboxItem) {
+                        checkboxItem.classList.toggle('checked', pair.checked);
+                    }
+                });
+                updateOutput();
+            });
+
+            function setAllCheckboxes(isChecked) {
+                wordPairs.forEach((pair, index) => {
+                    pair.checked = isChecked;
+                    const checkboxItem = checkboxContainer.querySelector(`[data-index="${index}"]`);
+                    if (checkboxItem) {
+                        checkboxItem.classList.toggle('checked', isChecked);
+                    }
+                });
+                updateOutput();
+            }
+            
+            function splitWordsAndTranslations(text) {
+                const parts = text.split(/[\s\n]+/).filter(part => part.length > 0);
+                const result = [];
+                
+                parts.forEach(part => {
+                    // 正则表达式：匹配开头的英文字母，直到遇到第一个非英文字母
+                    const match = part.match(/^([a-zA-Z-]+)(.*)/);
+                    
+                    if (match) {
+                        // match[1] 是英文单词部分
+                        // match[2] 是剩余的中文翻译部分
+                        result.push(match[1]);
+                        result.push(match[2].trim());
+                    } else {
+                        // 如果没有匹配到，可能整个都是中文或格式不符
+                        // 作为一个没有单词的翻译处理
+                        result.push('');
+                        result.push(part);
+                    }
+                });
+                
+                return result;
+            }
+            
+            function updateOutput() {
+                const checkedWords = wordPairs
+                    .filter(pair => pair.checked)
+                    .map(pair => pair.word + pair.translation);
+                
+                outputText.value = checkedWords.join('');
+            }
+            
+            inputText.value = "ankle踝 anniversary周年纪念日 annoy使恼怒 annual每年的 apologize道歉 appearance出现 appointment约会 approach接近 approve赞成 area区域 argue争论 arise出现 arrange安排 arrest逮捕 arrive到达 article文章 artificial人工的 aside在旁边 ask问 asleep睡着的 assess评估 assignment作业 assist帮助 assume假设 assure保证 atmosphere大气层 attach附上 attack攻击 attempt尝试 attend参加 attention注意力 attitude态度 attract吸引 audience观众 author作者 available可用的 average平均 avoid避免 awake醒着的 award奖品 aware意识到的 awful可怕的 awkward尴尬的";
+            
+            processBtn.click();
+        });
+    </script>
+</body>
+</html>
