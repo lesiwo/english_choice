@@ -239,8 +239,8 @@
         <h1>单词选择器</h1>
         
         <div class="section">
-            <div class="section-title">输入单词和翻译（用空格或换行分隔）</div>
-            <textarea id="inputText" placeholder="例如：ankle踝 anniversary周年纪念日 annoy使恼怒"></textarea>
+            <div class="section-title">输入单词</div>
+            <textarea id="inputText" placeholder="例如：apple 苹果 banana 香蕉"></textarea>
             <div class="button-row">
                 <button id="processBtn" class="button process-btn">处理单词</button>
             </div>
@@ -255,14 +255,13 @@
             <div class="action-buttons">
                 <button id="selectAllBtn" class="button select-all">全选</button>
                 <button id="deselectAllBtn" class="button deselect-all">全不选</button>
-                <button id="invertSelectionBtn" class="button" style="background-color: #f39c12;">反选</button>
+                <!-- <button id="invertSelectionBtn" class="button" style="background-color: #f39c12;">反选</button> -->
             </div>
         </div>
         
         <div class="section output-section">
             <div class="section-title">整合结果</div>
-            <input type="text" id="outputText" readonly placeholder="选中的单词将显示在这里">
-            <div class="hint">选中的单词已自动删除所有空格和换行</div>
+            <textarea type="text" id="outputText" readonly placeholder="选中的单词将显示在这里"></textarea>
         </div>
     </div>
 
@@ -395,7 +394,7 @@
                 outputText.value = checkedWords.join('');
             }
             
-            inputText.value = "ankle踝 anniversary周年纪念日 annoy使恼怒 annual每年的 apologize道歉 appearance出现 appointment约会 approach接近 approve赞成 area区域 argue争论 arise出现 arrange安排 arrest逮捕 arrive到达 article文章 artificial人工的 aside在旁边 ask问 asleep睡着的 assess评估 assignment作业 assist帮助 assume假设 assure保证 atmosphere大气层 attach附上 attack攻击 attempt尝试 attend参加 attention注意力 attitude态度 attract吸引 audience观众 author作者 available可用的 average平均 avoid避免 awake醒着的 award奖品 aware意识到的 awful可怕的 awkward尴尬的";
+            inputText.value = "";
             
             processBtn.click();
         });
